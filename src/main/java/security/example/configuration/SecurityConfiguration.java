@@ -2,35 +2,28 @@ package security.example.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import security.example.model.user.UserDetailsServiceImpl;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
+    private final UserDetailsServiceImpl userDetailsService;
+
+    public SecurityConfiguration(UserDetailsServiceImpl userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-            .inMemoryAuthentication()
-            .withUser("admin")
-                .password(passwordEncoder()
-                .encode("admin1"))
-                .authorities("ACCESS_TEST1", "ACCESS_TEST2", "ROLE_ADMIN")
-            .and()
-            .withUser("user")
-                .password(passwordEncoder()
-                .encode("user1"))
-                .roles("USER")
-            .and()
-            .withUser("manager")
-                .password(passwordEncoder()
-                .encode("manager1"))
-                .authorities("ACCESS_TEST1","ROLE_MANAGER");
+        auth.authenticationProvider(authenticationProvider());
     }
 
     // Security rules are executed in chain one by one
@@ -47,6 +40,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers("/api/public/users").hasRole("ADMIN")
             .and()
             .httpBasic();
+    }
+
+    @Bean
+    DaoAuthenticationProvider authenticationProvider(){
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        daoAuthenticationProvider.setUserDetailsService(this.userDetailsService);
+        return daoAuthenticationProvider;
     }
 
     // PasswordEncoder is mandatory in Spring Boot 2.0 and higher
