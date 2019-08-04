@@ -23,7 +23,7 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    private int active;
+    private int active = 1;
 
     private String roles = "";
 
@@ -34,7 +34,6 @@ public class User {
         this.password = password;
         this.roles = roles;
         this.permissions = permissions;
-        this.active = 1;
     }
 
     public List<String> getRoleList(){
