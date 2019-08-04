@@ -1,4 +1,4 @@
-package security.example.model;
+package security.example.model.user;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,7 +27,7 @@ public class User {
 
     private String roles = "";
 
-    private String permissions;
+    private String permissions = "";
 
     public User(String username, String password, String roles, String permissions) {
         this.username = username;
