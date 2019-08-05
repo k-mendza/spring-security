@@ -41,11 +41,18 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers("/api/public/users").hasRole("ADMIN")
             .and()
             .formLogin()
+//            to change post method url from ... to /signin:
+//            .loginProcessingUrl("/signin")
             .loginPage("/login").permitAll()
+//            to change username and password key name:
+//            .usernameParameter("myUsername")
+//            .passwordParameter("myPassword")
             .and()
-            .logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout")).logoutSuccessUrl("/index")
+            .logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout")).logoutSuccessUrl("/login")
             .and()
             .rememberMe().tokenValiditySeconds(2592000);
+//            to change Remember Me feature key name:
+//            .rememberMeParameter("myRememberMe");
 //            .httpBasic();
     }
 
