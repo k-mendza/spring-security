@@ -5,7 +5,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import security.example.model.user.User;
 import security.example.model.user.UserRepository;
@@ -22,8 +21,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private UserRepository userRepository;
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, AuthenticationEntryPoint authenticationEntryPoint, UserRepository userRepository) {
-        super(authenticationManager, authenticationEntryPoint);
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserRepository userRepository) {
+        super(authenticationManager);
         this.userRepository = userRepository;
     }
 

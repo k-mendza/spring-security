@@ -7,8 +7,13 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
+import security.example.model.user.UserRepository;
+import security.example.security.JwtAuthenticationFilter;
+import security.example.security.JwtAuthorizationFilter;
 import security.example.security.UserDetailsServiceImpl;
 
 @Configuration
@@ -16,9 +21,11 @@ import security.example.security.UserDetailsServiceImpl;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsServiceImpl userDetailsService;
+    private final UserRepository userRepository;
 
-    public SecurityConfiguration(UserDetailsServiceImpl userDetailsService) {
+    public SecurityConfiguration(UserDetailsServiceImpl userDetailsService, UserRepository userRepository) {
         this.userDetailsService = userDetailsService;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -30,8 +37,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+            // remove csrf and state in session (JWT does not use them)
+            .csrf().disable()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
+            // add JWT filters: authentication and authorization
+            .addFilter(new JwtAuthenticationFilter(authenticationManager()))
+            .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository))
             .authorizeRequests()
-            .antMatchers("*").permitAll();
+            .antMatchers("/login").permitAll()
+            .antMatchers("/api/public/management/*").hasRole("MANAGER")
+            .antMatchers("/api/public/admin/*").hasRole("ADMIN");
     }
 
     @Bean

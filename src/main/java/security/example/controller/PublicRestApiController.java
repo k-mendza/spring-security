@@ -30,7 +30,7 @@ public class PublicRestApiController {
         return "Some report data";
     }
 
-    @GetMapping("users")
+    @GetMapping("admin/users/all")
     public List<User> getAllUsers(){
         return this.userRepository.findAll();
     }
